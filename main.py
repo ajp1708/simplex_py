@@ -1,5 +1,6 @@
 from __future__ import annotations
 from fractions import Fraction
+from typing import List, Tuple
 from numpy import matrix
 
 
@@ -22,3 +23,29 @@ class Tableau:
 
 	def __str__(self) -> str:
 		pass
+
+
+	def pivot(self) -> Tuple[int, int]:
+		# return the location of the pivot in the table
+		pass
+
+
+	def next_tableau(self, pivot: Tuple[int, int]) -> Tableau:
+		pass
+
+
+	def done(self) -> bool:
+		pass
+
+
+	def row_strategy(self) -> List[Fraction]:
+		pass
+
+
+	def column_strategy(self) -> List[Fraction]:
+		pass
+
+
+	def value(self, k: int) -> Fraction:
+		pass
+
