@@ -2,7 +2,9 @@ from __future__ import annotations
 from fractions import Fraction
 from typing import List, Tuple
 from numpy import ndarray
+from tabulate import tabulate
 import numpy
+import math
 
 
 class Tableau:
@@ -19,10 +21,35 @@ class Tableau:
 		self.bottom = numpy.concatenate([negs, zeros])
 		# The right-side of the tableau, filled with ones
 		self.side = numpy.array([Fraction(1)] * matrix.shape[0])
+		# The row numbers for x1, x2, etc
+		self.row_names = []
 
 
 	def __str__(self) -> str:
-		pass
+		table = []
+		line = [""]
+		for i in range(self.left.shape[1]):
+			line.append(f"x{i}")
+		for i in range(self.left.shape[0]):
+			line.append(f"s{i}")
+		line.append("")
+		table.append(line)
+		for row in range(self.left.shape[0] + 1):
+			line = []
+			line.append(self._row_name(row))
+			row = self._get_row(row)
+			for value in row:
+				line.append(value)
+			table.append(line)
+		return tabulate(table, headers="firstrow")
+
+
+	def _row_name(self, row: int) -> str:
+		for i in range(len(self.row_names)):
+			if self.row_names[i] == row:
+				return f"x{i}"
+		if row == self.left.shape[0]: return ""
+		return f"s{row}"
 
 
 	def _get_row(self, row: int) -> List[Fraction]:
@@ -80,7 +107,7 @@ class Tableau:
 			elif self.side[i] / col[i] < max_value:
 				max_value = self.side[i] / col[i]
 				max_index = i
-		
+
 		return (min_index, max_index)
 
 
@@ -111,3 +138,5 @@ class Tableau:
 		# the value of the game, assuming we're done
 		return self.bottom[self.bottom.size - 1] - k
 
+
+print(Tableau(numpy.array([[1, 2], [3, 4]])))
