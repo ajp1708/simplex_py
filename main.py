@@ -26,7 +26,9 @@ class Tableau:
 
 
 	def __str__(self) -> str:
+		# we'll build a table to use the tabulate module
 		table = []
+		# we'll first make the header row
 		line = [""]
 		for i in range(self.left.shape[1]):
 			line.append(f"x{i}")
@@ -34,6 +36,7 @@ class Tableau:
 			line.append(f"s{i}")
 		line.append("")
 		table.append(line)
+		# then we make all the other rows
 		for row in range(self.left.shape[0] + 1):
 			line = []
 			line.append(self._row_name(row))
@@ -45,10 +48,13 @@ class Tableau:
 
 
 	def _row_name(self, row: int) -> str:
+		# check if it's an x variable
 		for i in range(len(self.row_names)):
 			if self.row_names[i] == row:
 				return f"x{i}"
+		# check if it's the bottom row
 		if row == self.left.shape[0]: return ""
+		# otherwise it's slack
 		return f"s{row}"
 
 
