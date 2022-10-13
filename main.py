@@ -1,7 +1,9 @@
 from __future__ import annotations
 from fractions import Fraction
+from os import read
 from typing import List, Tuple
 from numpy import ndarray
+from prompt_toolkit import prompt
 from tabulate import tabulate
 import numpy
 import math
@@ -144,5 +146,50 @@ class Tableau:
 		# the value of the game, assuming we're done
 		return self.bottom[self.bottom.size - 1] - k
 
+def main():
+	print("Welcome to the Super Awesome and Amazing Simplex Method Program\n")
+	
+	row = 0
+	col = 0
 
-print(Tableau(numpy.array([[1, 2], [3, 4]])))
+	while(row < 1 or col < 1):
+		try:
+			# might cause the vals of row and col to be prematurely changed
+			rows = int(input("How many rows are in the matrix:"))
+			cols = int(input("How many columns are in the matrix"))
+			if(row < 1 or col < 1):
+				print("Invalid dimensions entered, the dimensions need to be an integer greater than 1")
+
+		except:
+			print("Invalid dimensions entered, the dimensions need to be an integer greater than 1")
+
+	matrix = numpy.ndarray(shape=(row,col), dtype=Fraction)
+	rowsRead = 0
+
+	while(rowsRead < rows):
+		rowVals = prompt("Enter the values in row" + str(x+1) + " (values must be space separated")
+		splitVals = rowVals.split(" ")
+		readErrorFlag = False
+
+		# checks if enough values were read in to ensure rows and cols of the matrix are properly represented
+		if(len(splitVals) < col):
+			print("Not enough values entered for the row")
+			continue
+		
+		row = numpy.array()
+
+		# trys to add all the values entered into an array, which will eventually be put into the matrix
+		for val in rowVals:
+			try:
+				numpy.append(row, int(val))
+			except:
+				print("Failed reading the vals in the row. Make sure all the values are space separated and integers")
+				readErrorFlag = True
+				break
+		if not readErrorFlag:
+			matrix[rowsRead] = row
+			rowsread += 1
+
+	print(Tableau(numpy.array([[1, 2], [3, 4]])))
+
+main()
