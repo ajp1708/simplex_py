@@ -177,6 +177,16 @@ class Tableau:
 		# the value of the game, assuming we're done
 		return self.bottom[self.bottom.size - 1] - k
 
+def print_fraction_array(fraction_array) -> str:
+	temp = ""
+	for x in fraction_array:
+		temp += str(x) + " "
+	print(temp)
+
+def print_fraction_matrix(fraction_matrix) -> str:
+	for x in fraction_matrix:
+		print_fraction_array(x)
+
 # need to figure out a way to print fractions as actual fractions not Fraction()
 def main():
 	print("Welcome to the Super Awesome and Amazing Simplex Method Program\n")
@@ -226,8 +236,8 @@ def main():
 			rows_read += 1
 
 	print("Original Matrix\n")
-	print(str(matrix) + "\n")
-	# TODO to print out fractions
+	print_fraction_matrix(matrix)
+	print()
 
 	min = numpy.amin(matrix)
 	k = 0
@@ -239,47 +249,57 @@ def main():
 
 	print("k = " + str(k))
 	print("Matrix + k\n")
-	print(str(k_matrix) + "\n")
+	print_fraction_matrix(k_matrix)
+	print()
 	# TODO to print out fractions
 
 	simplex_tableau = Tableau(k_matrix)
 
 	print("INITIAL TABLEAU\n")
-	print(str(simplex_tableau))
+	print(str(simplex_tableau) + "\n")
+
+	# for skipping the whole process
+	print_steps = input("If you want to only see the tableaus enter Y: ")
+	print()
 
 	tab_num = 1
 	# keeps going until final tableau reached
 	while not simplex_tableau.done():
-		print("\nFinding Tableau " + str(tab_num))
 		pivot_coords = simplex_tableau.pivot()
-		pivot_col_num = pivot_coords[0]
-		pivot_row_num = pivot_coords[1]
-		pivot_val = pivot_coords[2]
+		if not print_steps.upper() == "Y":
+			print("\nFinding Tableau " + str(tab_num))
+			pivot_col_num = pivot_coords[0]
+			pivot_row_num = pivot_coords[1]
+			pivot_val = pivot_coords[2]
 
-		print("Pivot col: " + str(pivot_col_num) + ", row: "
-		 + str(pivot_row_num) + ", value: " + str(pivot_val) + "\n")
+			print("Pivot col: " + str(pivot_col_num) + ", row: "
+			+ str(pivot_row_num) + ", value: " + str(pivot_val) + "\n")
 
-		pivot_row_new = simplex_tableau._get_row(pivot_row_num)
-		for x in range(len(pivot_row_new)):
-			pivot_row_new[x] = pivot_row_new[x] / pivot_val
-		print("The new pivot row is " + str(pivot_row_new))
+			pivot_row_new = simplex_tableau._get_row(pivot_row_num)
+			for x in range(len(pivot_row_new)):
+				pivot_row_new[x] = pivot_row_new[x] / pivot_val
+			print("The new pivot row is: ")
+			print_fraction_array(pivot_row_new)
+			print()
 
-		while(True):
-			t = input("Continue to new row calculations and tableau? (Y for yes N for no): ")
-			if t.upper() == "Y":
-				break
-			elif t.upper() == "N":
-				return
+			while(True):
+				t = input("Continue to new row calculations? (Y for yes N for no): ")
+				if t.upper() == "Y":
+					break
+				elif t.upper() == "N":
+					return
 
-		for x in range(rows + 1):
-			if not x == pivot_row_num:
-				new_row = simplex_tableau._get_row(x)
-				pivot_row_val = simplex_tableau._get_col(pivot_col_num)[x]
-				pivot_row_subtract = pivot_row_new.copy()
-				for i in range(len(pivot_row_new)):
-					pivot_row_subtract[i] = pivot_row_subtract[i] * pivot_row_val
-				new_row = numpy.subtract(new_row, pivot_row_subtract)
-				print("\nThe new row " + str(x+1) + " is " + str(new_row) + "")
+			for x in range(rows + 1):
+				if not x == pivot_row_num:
+					new_row = simplex_tableau._get_row(x)
+					pivot_row_val = simplex_tableau._get_col(pivot_col_num)[x]
+					pivot_row_subtract = pivot_row_new.copy()
+					for i in range(len(pivot_row_new)):
+						pivot_row_subtract[i] = pivot_row_subtract[i] * pivot_row_val
+					new_row = numpy.subtract(new_row, pivot_row_subtract)
+					print("\nThe new row " + str(x+1) + " is: ")
+					print_fraction_array(new_row)
+					print()
 		
 		simplex_tableau = simplex_tableau.next_tableau(pivot_coords)
 		print("\nTABLEAU " + str(tab_num))
@@ -295,8 +315,8 @@ def main():
 		
 	print("\nFINAL TABLEAU\n")
 	print(str(simplex_tableau) + "\n")
-	print("Row player's optimial strategy: " + str(simplex_tableau.row_strategy()))
-	print("Column player's optimial strategy: " + str(simplex_tableau.column_strategy()))
+	print("Row player's optimial strategy: " + print_fraction_array(simplex_tableau.row_strategy()))
+	print("Column player's optimial strategy: " + print_fraction_array(simplex_tableau.column_strategy()))
 	print("The value of the game is: " + str(simplex_tableau.value(k)))
 
 main()
