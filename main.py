@@ -1,7 +1,6 @@
 from __future__ import annotations
 from fractions import Fraction
 from os import read
-from time import sleep
 from typing import List, Tuple
 from numpy import ndarray
 from prompt_toolkit import prompt
@@ -95,7 +94,7 @@ class Tableau:
 			return lst
 
 
-	def pivot(self) -> Tuple[int, int]:
+	def pivot(self) -> Tuple[int, int, int]:
 		# return the location of the pivot in the table
 		# first we get the column number of the pivot
 		min_value = Fraction(0)
@@ -110,17 +109,17 @@ class Tableau:
 		max_value = Fraction(10_000_000)
 		max_index = -1
 		for i in range(len(col) - 1):
-			print(max_value, max_index, self.side[i], col[i])
+			# print(max_value, max_index, self.side[i], col[i])
 			if col[i] <= 0:
 				continue
 			elif self.side[i] / col[i] < max_value:
 				max_value = self.side[i] / col[i]
 				max_index = i
 
-		return (min_index, max_index)
+		return (min_index, max_index, col[max_index])
 
 
-	def next_tableau(self, pivot: Tuple[int, int]) -> Tableau:
+	def next_tableau(self, pivot: Tuple[int, int, int]) -> Tableau:
 		pass
 
 
@@ -147,6 +146,7 @@ class Tableau:
 		# the value of the game, assuming we're done
 		return self.bottom[self.bottom.size - 1] - k
 
+# need to figure out a way to print fractions as actual fractions not Fraction()
 def main():
 	print("Welcome to the Super Awesome and Amazing Simplex Method Program\n")
 	
@@ -154,7 +154,7 @@ def main():
 	cols = 0
 
 	# checks if the dimensions entered are valid
-	while(rows < 1 or cols < 1):
+	while rows < 1 or cols < 1:
 		try:
 			rows = int(input("How many rows are in the matrix: "))
 			cols = int(input("How many columns are in the matrix: "))
@@ -165,37 +165,38 @@ def main():
 			print("Invalid dimensions entered, the dimensions need to be an integer greater than 1")
 
 	matrix = numpy.empty((rows,cols),dtype=Fraction)
-	rowsRead = 0
+	rows_read = 0
 
 	# goes until all the values for each row are read in
-	while(rowsRead < rows):
-		rowVals = prompt("Enter the values in row " + str(rowsRead+1) + " (values must be space separated): ")
-		splitVals = rowVals.split(" ")
-		readErrorFlag = False
+	while rows_read < rows:
+		row_vals = prompt("Enter the values in row " + str(rows_read+1) + " (values must be space separated): ")
+		split_vals = row_vals.split(" ")
+		read_error_flag = False
 
 		# checks if enough values were read in to ensure rows and cols of the matrix are properly represented
-		if(not len(splitVals) == cols):
+		if not len(split_vals) == cols:
 			print("Incorrect number of values entered for the row")
 			continue
 		
 		row = []
 
 		# trys to add all the values entered into an array, which will eventually be put into the matrix
-		for val in splitVals:
+		for val in split_vals:
 			# if a value entered can't be converted to a fraction will error prompt again
 			try:
 				row.append(Fraction(val))
 			except:
-				print("Failed reading the vals in the row. Make sure all the values are space separated and integers")
-				readErrorFlag = True
+				print("Failed reading the vals in the row. Make sure all the values are space separated and numbers")
+				read_error_flag = True
 				break
-		if not readErrorFlag:
+		if not read_error_flag:
 			numpy.array(row)
-			matrix[rowsRead]= row
-			rowsRead += 1
+			matrix[rows_read]= row
+			rows_read += 1
 
 	print("Original Matrix\n")
-	print(matrix + "\n")
+	print(str(matrix) + "\n")
+	# TODO to print out fractions
 
 	min = numpy.amin(matrix)
 	k = 0
@@ -203,26 +204,63 @@ def main():
 	if min < 1:
 		k = Fraction(abs(Fraction(1)-min))
 
-	kMatrix = matrix + k
+	k_matrix = matrix + k
 
+	print("k = " + str(k))
 	print("Matrix + k\n")
-	print(kMatrix + "\n")
+	print(str(k_matrix) + "\n")
+	# TODO to print out fractions
 
-	simplexTableau = Tableau(kMatrix)
+	simplex_tableau = Tableau(k_matrix)
 
 	print("INITIAL TABLEAU\n")
-	print(simplexTableau)
+	print(str(simplex_tableau) + "\n")
 
-	tabNum = 1
-	while(not simplexTableau.done()):
-		#TODO
-		x = 1
+	tab_num = 1
+	while not simplex_tableau.done():
+		print("Finding Tableau " + str(tab_num))
+		pivot_coords = simplex_tableau.pivot()
+		pivot_col_num = pivot_coords[0]
+		pivot_row_num = pivot_coords[1]
+		pivot_val = pivot_coords[2]
+
+		print("Pivot col: " + str(pivot_col_num) + ",row: "
+		 + str(pivot_row_num) + ",value: " + str(pivot_val))
+
+		pivot_row_new = simplex_tableau._get_row(pivot_row_num)
+		for x in range(len(pivot_row_new)):
+			pivot_row_new[x] = pivot_row_new[x] / pivot_val
+		print("The new pivot row is " + str(pivot_row_new))
+
+		while(True):
+			t = input("Continue to new row calculations? (Y for yes N for no): ")
+			if t.upper() == "Y":
+				break
+			elif t.upper() == "N":
+				exit(0)
+
+		for x in range(rows + 1):
+			if not x == pivot_row_num:
+				new_row = simplex_tableau._get_row(x)
+				for y in range(len(new_row)):
+					new_row[y] = new_row[y] / pivot_val
+				print("The new row " + str(x+1) + " is " + str(new_row))
+		
+		while(True):
+			t = input("Continue to next tableau (Y for yes N for no): ")
+			if t.upper() == "Y":
+				break
+			elif t.upper() == "N":
+				exit(0)
+		
+		simplex_tableau = simplex_tableau.next_tableau(pivot_coords)
+		
 
 	print("FINAL TABLEAU\n")
-	print(simplexTableau + "\n")
-	print("Row player's optimial strategy " + str(simplexTableau.row_strategy))
-	print("Column player's optimial strategy " + str(simplexTableau.column_strategy))
-	print("The value of the game is " + str(simplexTableau.value(k)))
+	print(simplex_tableau + "\n")
+	print("Row player's optimial strategy " + str(simplex_tableau.row_strategy))
+	print("Column player's optimial strategy " + str(simplex_tableau.column_strategy))
+	print("The value of the game is " + str(simplex_tableau.value(k)))
 
 	print(Tableau(numpy.array([[1, 2], [3, 4]])))
 
