@@ -149,46 +149,56 @@ class Tableau:
 def main():
 	print("Welcome to the Super Awesome and Amazing Simplex Method Program\n")
 	
-	row = 0
-	col = 0
+	rows = 0
+	cols = 0
 
-	while(row < 1 or col < 1):
+	while(rows < 1 or cols < 1):
 		try:
 			# might cause the vals of row and col to be prematurely changed
-			rows = int(input("How many rows are in the matrix:"))
-			cols = int(input("How many columns are in the matrix"))
-			if(row < 1 or col < 1):
+			rows = int(input("How many rows are in the matrix: "))
+			cols = int(input("How many columns are in the matrix: "))
+			if(rows < 1 or cols < 1):
 				print("Invalid dimensions entered, the dimensions need to be an integer greater than 1")
 
 		except:
 			print("Invalid dimensions entered, the dimensions need to be an integer greater than 1")
 
-	matrix = numpy.ndarray(shape=(row,col), dtype=Fraction)
+	matrix = numpy.empty((rows,cols),dtype=Fraction)
 	rowsRead = 0
 
 	while(rowsRead < rows):
-		rowVals = prompt("Enter the values in row" + str(x+1) + " (values must be space separated")
+		rowVals = prompt("Enter the values in row " + str(rowsRead+1) + " (values must be space separated): ")
 		splitVals = rowVals.split(" ")
 		readErrorFlag = False
 
 		# checks if enough values were read in to ensure rows and cols of the matrix are properly represented
-		if(len(splitVals) < col):
-			print("Not enough values entered for the row")
+		if(not len(splitVals) == cols):
+			print("Incorrect number of values entered for the row")
 			continue
 		
-		row = numpy.array()
+		row = []
 
 		# trys to add all the values entered into an array, which will eventually be put into the matrix
-		for val in rowVals:
+		for val in splitVals:
 			try:
-				numpy.append(row, int(val))
+				row.append(Fraction(val))
 			except:
 				print("Failed reading the vals in the row. Make sure all the values are space separated and integers")
 				readErrorFlag = True
 				break
 		if not readErrorFlag:
-			matrix[rowsRead] = row
-			rowsread += 1
+			numpy.array(row)
+			matrix[rowsRead]= row
+			rowsRead += 1
+	
+	simplexTableau = Tableau(matrix)
+
+	print("INITIAL TABLEAU\n")
+	print(simplexTableau)
+
+	tabNum = 1
+	while(not simplexTableau.done()):
+		#TODO
 
 	print(Tableau(numpy.array([[1, 2], [3, 4]])))
 
