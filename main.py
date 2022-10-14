@@ -251,7 +251,6 @@ def main():
 	print("Matrix + k\n")
 	print_fraction_matrix(k_matrix)
 	print()
-	# TODO to print out fractions
 
 	simplex_tableau = Tableau(k_matrix)
 
@@ -279,7 +278,7 @@ def main():
 			for x in range(len(pivot_row_new)):
 				pivot_row_new[x] = pivot_row_new[x] / pivot_val
 			print("The new pivot row is: ")
-			print_fraction_array(pivot_row_new)
+			print(print_fraction_array(pivot_row_new))
 			print()
 
 			while(True):
@@ -298,7 +297,7 @@ def main():
 						pivot_row_subtract[i] = pivot_row_subtract[i] * pivot_row_val
 					new_row = numpy.subtract(new_row, pivot_row_subtract)
 					print("\nThe new row " + str(x+1) + " is: ")
-					print_fraction_array(new_row)
+					print(print_fraction_array(new_row))
 					print()
 		
 		simplex_tableau = simplex_tableau.next_tableau(pivot_coords)
