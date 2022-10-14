@@ -120,7 +120,36 @@ class Tableau:
 
 
 	def next_tableau(self, pivot: Tuple[int, int, int]) -> Tableau:
-		pass
+		self.row_names.append(pivot[1])
+		pivot_row_new = self._get_row(pivot[1])
+		# calculate the new values for every value in the pivot row
+		for x in range(len(pivot_row_new)):
+			pivot_row_new[x] = pivot_row_new[x] / pivot[2]
+		# set the new values for every entry in the pivot row
+		for i in range(self.left.shape[1]):
+			self.left[pivot[1], i] = pivot_row_new[i]
+		for i in range(self.left.shape[1], self.right.shape[0]):
+			self.right[pivot[1], i-self.left.shape[1]] = pivot_row_new[i]
+		self.side[pivot[1]] = pivot_row_new[len(pivot_row_new) - 1]
+
+		for x in range(self.left.shape[0] + 1):
+			if not x == pivot[1]:
+				new_row = self._get_row(x)
+				pivot_row_val = self._get_col(pivot[0])[pivot[1]]
+				pivot_row_subtract = pivot_row_new.copy()
+				for i in range(len(pivot_row_new)):
+					pivot_row_subtract[x] = pivot_row_subtract[x] * pivot_row_val
+				new_row = numpy.subtract(new_row, pivot_row_subtract)
+				if x == self.left.shape[0]:
+					self.bottom = new_row
+				else:
+					for i in range(self.left.shape[1]):
+						self.left[x, i] = pivot_row_new[i]
+					for i in range(self.left.shape[1], self.right.shape[0]):
+						self.right[x, i-self.left.shape[1]] = pivot_row_new[i]
+				
+		return self
+		
 
 
 	def done(self) -> bool:
@@ -233,7 +262,7 @@ def main():
 		print("The new pivot row is " + str(pivot_row_new))
 
 		while(True):
-			t = input("Continue to new row calculations? (Y for yes N for no): ")
+			t = input("Continue to new row calculations and tableau? (Y for yes N for no): ")
 			if t.upper() == "Y":
 				break
 			elif t.upper() == "N":
@@ -242,10 +271,18 @@ def main():
 		for x in range(rows + 1):
 			if not x == pivot_row_num:
 				new_row = simplex_tableau._get_row(x)
-				for y in range(len(new_row)):
-					new_row[y] = new_row[y] / pivot_val
+				pivot_row_val = simplex_tableau._get_col(pivot_col_num)[pivot_row_num]
+				pivot_row_subtract = pivot_row_new.copy()
+				for i in range(len(pivot_row_new)):
+					pivot_row_subtract[x] = pivot_row_subtract[x] * pivot_row_val
+				new_row = numpy.subtract(new_row, pivot_row_subtract)
 				print("The new row " + str(x+1) + " is " + str(new_row))
 		
+		simplex_tableau = simplex_tableau.next_tableau(pivot_coords)
+		print("TABLEAU " + str(tab_num))
+		print(str(simplex_tableau))
+		tab_num += 1
+
 		while(True):
 			t = input("Continue to next tableau (Y for yes N for no): ")
 			if t.upper() == "Y":
@@ -253,7 +290,6 @@ def main():
 			elif t.upper() == "N":
 				exit(0)
 		
-		simplex_tableau = simplex_tableau.next_tableau(pivot_coords)
 		
 
 	print("FINAL TABLEAU\n")
