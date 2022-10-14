@@ -193,10 +193,22 @@ def main():
 			numpy.array(row)
 			matrix[rowsRead]= row
 			rowsRead += 1
-	
+
+	print("Original Matrix\n")
+	print(matrix + "\n")
+
+	min = numpy.amin(matrix)
 	k = 0
 
-	simplexTableau = Tableau(matrix)
+	if min < 1:
+		k = Fraction(abs(Fraction(1)-min))
+
+	kMatrix = matrix + k
+
+	print("Matrix + k\n")
+	print(kMatrix + "\n")
+
+	simplexTableau = Tableau(kMatrix)
 
 	print("INITIAL TABLEAU\n")
 	print(simplexTableau)
