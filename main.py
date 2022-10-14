@@ -177,11 +177,11 @@ class Tableau:
 		# the value of the game, assuming we're done
 		return self.bottom[self.bottom.size - 1] - k
 
-def print_fraction_array(fraction_array):
+def print_fraction_array(fraction_array) -> str:
 	temp = ""
 	for x in fraction_array:
 		temp += str(x) + " "
-	print(temp)
+	return temp
 
 def print_fraction_matrix(fraction_matrix):
 	for x in fraction_matrix:
