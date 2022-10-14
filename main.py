@@ -128,26 +128,28 @@ class Tableau:
 		# set the new values for every entry in the pivot row
 		for i in range(self.left.shape[1]):
 			self.left[pivot[1], i] = pivot_row_new[i]
-		for i in range(self.left.shape[1], self.right.shape[0]):
-			self.right[pivot[1], i-self.left.shape[1]] = pivot_row_new[i]
+		for i in range(self.right.shape[0]):
+			self.right[pivot[1], i] = pivot_row_new[i + self.left.shape[1]]
 		self.side[pivot[1]] = pivot_row_new[len(pivot_row_new) - 1]
 
+		# loops through all the other rows and changes their values
 		for x in range(self.left.shape[0] + 1):
 			if not x == pivot[1]:
 				new_row = self._get_row(x)
-				pivot_row_val = self._get_col(pivot[0])[pivot[1]]
+				pivot_row_val = self._get_col(pivot[0])[x]
 				pivot_row_subtract = pivot_row_new.copy()
 				for i in range(len(pivot_row_new)):
-					pivot_row_subtract[x] = pivot_row_subtract[x] * pivot_row_val
+					pivot_row_subtract[i] = pivot_row_subtract[i] * pivot_row_val
 				new_row = numpy.subtract(new_row, pivot_row_subtract)
 				if x == self.left.shape[0]:
 					self.bottom = new_row
 				else:
 					for i in range(self.left.shape[1]):
-						self.left[x, i] = pivot_row_new[i]
-					for i in range(self.left.shape[1], self.right.shape[0]):
-						self.right[x, i-self.left.shape[1]] = pivot_row_new[i]
-				
+						self.left[x, i] = new_row[i]
+					for i in range(self.right.shape[0]):
+						self.right[x, i] = new_row[i + 1 + self.left.shape[0]]
+					self.side[x] = new_row[len(new_row) - 1]
+
 		return self
 		
 
@@ -243,18 +245,19 @@ def main():
 	simplex_tableau = Tableau(k_matrix)
 
 	print("INITIAL TABLEAU\n")
-	print(str(simplex_tableau) + "\n")
+	print(str(simplex_tableau))
 
 	tab_num = 1
+	# keeps going until final tableau reached
 	while not simplex_tableau.done():
-		print("Finding Tableau " + str(tab_num))
+		print("\nFinding Tableau " + str(tab_num))
 		pivot_coords = simplex_tableau.pivot()
 		pivot_col_num = pivot_coords[0]
 		pivot_row_num = pivot_coords[1]
 		pivot_val = pivot_coords[2]
 
-		print("Pivot col: " + str(pivot_col_num) + ",row: "
-		 + str(pivot_row_num) + ",value: " + str(pivot_val))
+		print("Pivot col: " + str(pivot_col_num) + ", row: "
+		 + str(pivot_row_num) + ", value: " + str(pivot_val) + "\n")
 
 		pivot_row_new = simplex_tableau._get_row(pivot_row_num)
 		for x in range(len(pivot_row_new)):
@@ -266,38 +269,34 @@ def main():
 			if t.upper() == "Y":
 				break
 			elif t.upper() == "N":
-				exit(0)
+				return
 
 		for x in range(rows + 1):
 			if not x == pivot_row_num:
 				new_row = simplex_tableau._get_row(x)
-				pivot_row_val = simplex_tableau._get_col(pivot_col_num)[pivot_row_num]
+				pivot_row_val = simplex_tableau._get_col(pivot_col_num)[x]
 				pivot_row_subtract = pivot_row_new.copy()
 				for i in range(len(pivot_row_new)):
-					pivot_row_subtract[x] = pivot_row_subtract[x] * pivot_row_val
+					pivot_row_subtract[i] = pivot_row_subtract[i] * pivot_row_val
 				new_row = numpy.subtract(new_row, pivot_row_subtract)
-				print("The new row " + str(x+1) + " is " + str(new_row))
+				print("\nThe new row " + str(x+1) + " is " + str(new_row) + "")
 		
 		simplex_tableau = simplex_tableau.next_tableau(pivot_coords)
-		print("TABLEAU " + str(tab_num))
+		print("\nTABLEAU " + str(tab_num))
 		print(str(simplex_tableau))
 		tab_num += 1
 
-		while(True):
+		while(True and not simplex_tableau.done()):
 			t = input("Continue to next tableau (Y for yes N for no): ")
 			if t.upper() == "Y":
 				break
 			elif t.upper() == "N":
-				exit(0)
+				return
 		
-		
-
-	print("FINAL TABLEAU\n")
-	print(simplex_tableau + "\n")
-	print("Row player's optimial strategy " + str(simplex_tableau.row_strategy))
-	print("Column player's optimial strategy " + str(simplex_tableau.column_strategy))
-	print("The value of the game is " + str(simplex_tableau.value(k)))
-
-	print(Tableau(numpy.array([[1, 2], [3, 4]])))
+	print("\nFINAL TABLEAU\n")
+	print(str(simplex_tableau) + "\n")
+	print("Row player's optimial strategy: " + str(simplex_tableau.row_strategy()))
+	print("Column player's optimial strategy: " + str(simplex_tableau.column_strategy()))
+	print("The value of the game is: " + str(simplex_tableau.value(k)))
 
 main()
