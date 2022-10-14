@@ -44,7 +44,7 @@ class Tableau:
 			line.append(self._row_name(row))
 			row = self._get_row(row)
 			for value in row:
-				line.append(value)
+				line.append(str(value))
 			table.append(line)
 		return tabulate(table, headers="firstrow")
 
