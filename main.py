@@ -181,9 +181,9 @@ def print_fraction_array(fraction_array) -> str:
 	temp = ""
 	for x in fraction_array:
 		temp += str(x) + " "
-	print(temp)
+	return temp
 
-def print_fraction_matrix(fraction_matrix) -> str:
+def print_fraction_matrix(fraction_matrix):
 	for x in fraction_matrix:
 		print_fraction_array(x)
 
@@ -302,11 +302,15 @@ def main():
 					print()
 		
 		simplex_tableau = simplex_tableau.next_tableau(pivot_coords)
+
+		if(simplex_tableau.done()):
+			break
+		
 		print("\nTABLEAU " + str(tab_num))
 		print(str(simplex_tableau))
 		tab_num += 1
 
-		while(True and not simplex_tableau.done()):
+		while(True):
 			t = input("Continue to next tableau (Y for yes N for no): ")
 			if t.upper() == "Y":
 				break
