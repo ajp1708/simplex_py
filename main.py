@@ -1,6 +1,7 @@
 from __future__ import annotations
 from fractions import Fraction
 from os import read
+from time import sleep
 from typing import List, Tuple
 from numpy import ndarray
 from prompt_toolkit import prompt
@@ -152,9 +153,9 @@ def main():
 	rows = 0
 	cols = 0
 
+	# checks if the dimensions entered are valid
 	while(rows < 1 or cols < 1):
 		try:
-			# might cause the vals of row and col to be prematurely changed
 			rows = int(input("How many rows are in the matrix: "))
 			cols = int(input("How many columns are in the matrix: "))
 			if(rows < 1 or cols < 1):
@@ -166,6 +167,7 @@ def main():
 	matrix = numpy.empty((rows,cols),dtype=Fraction)
 	rowsRead = 0
 
+	# goes until all the values for each row are read in
 	while(rowsRead < rows):
 		rowVals = prompt("Enter the values in row " + str(rowsRead+1) + " (values must be space separated): ")
 		splitVals = rowVals.split(" ")
@@ -180,6 +182,7 @@ def main():
 
 		# trys to add all the values entered into an array, which will eventually be put into the matrix
 		for val in splitVals:
+			# if a value entered can't be converted to a fraction will error prompt again
 			try:
 				row.append(Fraction(val))
 			except:
@@ -191,6 +194,8 @@ def main():
 			matrix[rowsRead]= row
 			rowsRead += 1
 	
+	k = 0
+
 	simplexTableau = Tableau(matrix)
 
 	print("INITIAL TABLEAU\n")
@@ -199,6 +204,13 @@ def main():
 	tabNum = 1
 	while(not simplexTableau.done()):
 		#TODO
+		x = 1
+
+	print("FINAL TABLEAU\n")
+	print(simplexTableau + "\n")
+	print("Row player's optimial strategy " + str(simplexTableau.row_strategy))
+	print("Column player's optimial strategy " + str(simplexTableau.column_strategy))
+	print("The value of the game is " + str(simplexTableau.value(k)))
 
 	print(Tableau(numpy.array([[1, 2], [3, 4]])))
 
