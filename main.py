@@ -151,7 +151,6 @@ class Tableau:
 					self.side[x] = new_row[len(new_row) - 1]
 
 		return self
-		
 
 
 	def done(self) -> bool:
@@ -159,23 +158,27 @@ class Tableau:
 		return self.bottom.min() >= 0
 
 
-	def row_strategy(self) -> List[Fraction]:
-		# get the row player's optimal mixed strategy
-		v = self.value(0)
-		f = lambda x: x / v
-		return f(self.side)
-
-
 	def column_strategy(self) -> List[Fraction]:
+		# get the row player's optimal mixed strategy
+		lst = []
+		v = self.bottom[-1]
+		for x in self.row_names:
+			lst.append(self.side[x] / v)
+		while len(lst) < self.left.shape[0]:
+			lst.append(Fraction(0))
+		return lst[:self.left.shape[0]]
+
+
+	def row_strategy(self) -> List[Fraction]:
 		# get the column player's optimal mixed strategy
-		v = self.value(0)
+		v = self.bottom[-1]
 		f = lambda x: x / v
-		return f(self.bottom[self.left.shape[0]:])
+		return f(self.bottom[self.left.shape[0]:self.bottom.size - 1])
 
 
 	def value(self, k: int) -> Fraction:
 		# the value of the game, assuming we're done
-		return self.bottom[self.bottom.size - 1] - k
+		return Fraction(1) / self.bottom[self.bottom.size - 1] - k
 
 def print_fraction_array(fraction_array) -> str:
 	temp = ""
@@ -190,7 +193,7 @@ def print_fraction_matrix(fraction_matrix):
 # need to figure out a way to print fractions as actual fractions not Fraction()
 def main():
 	print("Welcome to the Super Awesome and Amazing Simplex Method Program\n")
-	
+
 	rows = 0
 	cols = 0
 
@@ -218,7 +221,7 @@ def main():
 		if not len(split_vals) == cols:
 			print("Incorrect number of values entered for the row")
 			continue
-		
+
 		row = []
 
 		# trys to add all the values entered into an array, which will eventually be put into the matrix
@@ -299,12 +302,12 @@ def main():
 					print("\nThe new row " + str(x+1) + " is: ")
 					print(print_fraction_array(new_row))
 					print()
-		
+
 		simplex_tableau = simplex_tableau.next_tableau(pivot_coords)
 
 		if(simplex_tableau.done()):
 			break
-		
+
 		print("\nTABLEAU " + str(tab_num))
 		print(str(simplex_tableau))
 		tab_num += 1
@@ -315,11 +318,12 @@ def main():
 				break
 			elif t.upper() == "N":
 				return
-		
+
 	print("\nFINAL TABLEAU\n")
 	print(str(simplex_tableau) + "\n")
 	print("Row player's optimial strategy: " + print_fraction_array(simplex_tableau.row_strategy()))
 	print("Column player's optimial strategy: " + print_fraction_array(simplex_tableau.column_strategy()))
 	print("The value of the game is: " + str(simplex_tableau.value(k)))
 
-main()
+if __name__ == "__main__":
+	main()
