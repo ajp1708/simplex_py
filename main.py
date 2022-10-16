@@ -303,7 +303,7 @@ def main():
 					for i in range(len(pivot_row_new)):
 						pivot_row_subtract[i] = pivot_row_subtract[i] * pivot_row_val
 					new_row = numpy.subtract(new_row, pivot_row_subtract)
-					print("\nThe new row " + str(x+1) + " is: ")
+					print("\nThe new row " + str(x) + " is: ")
 					print(print_fraction_array(new_row))
 					print()
 
