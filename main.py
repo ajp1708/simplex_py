@@ -120,7 +120,9 @@ class Tableau:
 
 
 	def next_tableau(self, pivot: Tuple[int, int, int]) -> Tableau:
-		self.row_names.append(pivot[1])
+		if not numpy.isin(pivot[1],self.row_names):
+			self.row_names.append(pivot[1])
+		
 		pivot_row_new = self._get_row(pivot[1])
 		# calculate the new values for every value in the pivot row
 		for x in range(len(pivot_row_new)):
@@ -147,7 +149,7 @@ class Tableau:
 					for i in range(self.left.shape[1]):
 						self.left[x, i] = new_row[i]
 					for i in range(self.right.shape[0]):
-						self.right[x, i] = new_row[i + 1 + self.left.shape[0]]
+						self.right[x, i] = new_row[i + self.left.shape[1]]
 					self.side[x] = new_row[len(new_row) - 1]
 
 		return self
@@ -164,16 +166,16 @@ class Tableau:
 		v = self.bottom[-1]
 		for x in self.row_names:
 			lst.append(self.side[x] / v)
-		while len(lst) < self.left.shape[0]:
+		while len(lst) < self.left.shape[1]:
 			lst.append(Fraction(0))
-		return lst[:self.left.shape[0]]
+		return lst[:self.left.shape[1]]
 
 
 	def row_strategy(self) -> List[Fraction]:
 		# get the column player's optimal mixed strategy
 		v = self.bottom[-1]
 		f = lambda x: x / v
-		return f(self.bottom[self.left.shape[0]:self.bottom.size - 1])
+		return f(self.bottom[self.left.shape[1]:self.bottom.size - 1])
 
 
 	def value(self, k: int) -> Fraction:
@@ -188,7 +190,7 @@ def print_fraction_array(fraction_array) -> str:
 
 def print_fraction_matrix(fraction_matrix):
 	for x in fraction_matrix:
-		print_fraction_array(x)
+		print(print_fraction_array(x))
 
 # need to figure out a way to print fractions as actual fractions not Fraction()
 def main():
@@ -257,6 +259,8 @@ def main():
 
 	simplex_tableau = Tableau(k_matrix)
 
+	print("DISCLAIMER: Rows and Columns are 0-indexed\n")
+
 	print("INITIAL TABLEAU\n")
 	print(str(simplex_tableau) + "\n")
 
@@ -264,7 +268,7 @@ def main():
 	print_steps = input("If you want to only see the tableaus enter Y: ")
 	print()
 
-	tab_num = 1
+	tab_num = 2
 	# keeps going until final tableau reached
 	while not simplex_tableau.done():
 		pivot_coords = simplex_tableau.pivot()
@@ -299,7 +303,7 @@ def main():
 					for i in range(len(pivot_row_new)):
 						pivot_row_subtract[i] = pivot_row_subtract[i] * pivot_row_val
 					new_row = numpy.subtract(new_row, pivot_row_subtract)
-					print("\nThe new row " + str(x+1) + " is: ")
+					print("\nThe new row " + str(x) + " is: ")
 					print(print_fraction_array(new_row))
 					print()
 
