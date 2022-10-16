@@ -1,6 +1,7 @@
 from __future__ import annotations
 from fractions import Fraction
 from os import read
+from tkinter import Y
 from typing import List, Tuple
 from numpy import ndarray
 from prompt_toolkit import prompt
@@ -160,19 +161,54 @@ class Tableau:
 		return self.bottom.min() >= 0
 
 
+	def pivoted_column(self, col: int) -> bool:
+		column = self._get_col(col)
+		foundOne = False
+		for x in column:
+			if not x == 1 and not x == 0:
+				return False
+			
+			if x == 1 and foundOne:
+				return False
+			elif x == 1:
+				foundOne = True
+		
+		return foundOne
+		
+	def pivot_cols(self) -> List[int]:
+		pivot_cols = []
+		for x in range(self.left.shape[1]):
+			if self.pivoted_column(x):
+				pivot_cols.append(x)
+
+		return pivot_cols
+
 	def column_strategy(self) -> List[Fraction]:
-		# get the row player's optimal mixed strategy
-		lst = []
+		# get the column player's optimal mixed strategy
+		lst = [Fraction(0)] * self.left.shape[1]
 		v = self.bottom[-1]
-		for x in self.row_names:
-			lst.append(self.side[x] / v)
-		while len(lst) < self.left.shape[1]:
-			lst.append(Fraction(0))
-		return lst[:self.left.shape[1]]
+
+		# gets all the columns that have been pivoted
+		pivots = self.pivot_cols()
+		name_count = 0
+
+		for x in range(self.left.shape[1]):
+			# no pivot in the column
+			if pivots.count(x) == 0:
+				lst[x] = Fraction(0)
+			else:
+				# makes sure to only use side vals with names once
+				if name_count < len(self.row_names):
+					lst[x] = self.side[self.row_names[name_count]] / v
+					name_count += 1					
+				else:
+					lst[x] = Fraction(0)
+
+		return lst
 
 
 	def row_strategy(self) -> List[Fraction]:
-		# get the column player's optimal mixed strategy
+		# get the row player's optimal mixed strategy
 		v = self.bottom[-1]
 		f = lambda x: x / v
 		return f(self.bottom[self.left.shape[1]:self.bottom.size - 1])
