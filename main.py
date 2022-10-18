@@ -67,7 +67,7 @@ class Tableau:
 			lst = []
 			for i in range(self.left.shape[1]):
 				lst.append(self.left[row, i])
-			for i in range(self.right.shape[0]):
+			for i in range(self.right.shape[1]):
 				lst.append(self.right[row, i])
 			lst.append(self.side[row])
 			return lst
@@ -86,7 +86,7 @@ class Tableau:
 		elif column < self.bottom.size - 1:
 			lst = []
 			for i in range(self.right.shape[0]):
-				lst.append(self.right[i, column - self.left.shape[0]])
+				lst.append(self.right[i, column - self.left.shape[1]])
 			lst.append(self.bottom[column])
 			return lst
 		elif column == self.bottom.size - 1:
